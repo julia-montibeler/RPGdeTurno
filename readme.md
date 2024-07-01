@@ -1,4 +1,4 @@
-# Jogo de RPG - Informações das Classes e Inimigos
+# Jogo de RPG
 
 ## Classes
 
