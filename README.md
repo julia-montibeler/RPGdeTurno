@@ -1,5 +1,4 @@
- # Jogo de RPG - Informações das Classes e Inimigos
-
+ # Jogo de RPG
 ## Classes
 
 Pontos de habilidade são os pontos necessários para uma classe utilizar uma habilidade, cada habilidade gasta 5 pontos. A cada 3 rodadas, os pontos de habilidades de todos são recarregados.
