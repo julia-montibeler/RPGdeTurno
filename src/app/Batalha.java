@@ -10,27 +10,13 @@ public class Batalha {
     Random random = new Random();
 
     Scanner sc = new Scanner(System.in);
+    //arraylist com as instâncias de personagens do jogo, caso o personagem morra em batalha, ele é eliminado também do jogo
     private ArrayList<Personagem> personagens;
+    //arraylist com os personagens ordenados por ordem de destreza
     private ArrayList<Personagem> personagensOrdenados;
+    //arraylist com cópias dos personagens do jogo, assim, se um personagem fugir da batalha ele é excluído desse arraylist
+    //mas não do jogo
     private ArrayList<Personagem> personagensBatalha = new ArrayList<>();
-    private ArrayList<Inimigo> inimigosBatalha = new ArrayList<>();
-
-    public ArrayList<Personagem> getPersonagens() {
-        return personagens;
-    }
-
-    public void setPersonagens(ArrayList<Personagem> personagens) {
-        this.personagens = personagens;
-    }
-
-    public ArrayList<Inimigo> getInimigos() {
-        return inimigos;
-    }
-
-    public void setInimigos(ArrayList<Inimigo> inimigos) {
-        this.inimigos = inimigos;
-    }
-
     private ArrayList<Inimigo> inimigos;
 
 
@@ -40,14 +26,13 @@ public class Batalha {
         this.inimigos = inimigos;
         personagensOrdenados = definirOrdem();
         personagensBatalha.addAll(personagens);
-        inimigosBatalha.addAll(inimigos);
     }
 
     public void iniciarBatalha() throws InterruptedException {
         int i = 1;
         System.out.println("COMEÇOU A BATALHA!");
         this.imprimirInformacoes();
-        while (!(personagensBatalha.isEmpty()) && !(inimigosBatalha.isEmpty())) {
+        while (!(personagensBatalha.isEmpty()) && !(inimigos.isEmpty())) {
             if ((i%3) == 0) {
                 for (Personagem p: personagensBatalha) {
                     p.carregar();
@@ -56,7 +41,7 @@ public class Batalha {
             System.out.println("\n-----------------------------------");
             System.out.println("Rodada "+i);
             for (int j = 0; j < personagensOrdenados.size(); j++) {
-                if (inimigosBatalha.isEmpty() || personagensBatalha.isEmpty()) {
+                if (inimigos.isEmpty() || personagensBatalha.isEmpty()) {
                     break;
                 }
                 if (personagensOrdenados.get(j) instanceof Inimigo) {
@@ -65,14 +50,14 @@ public class Batalha {
                     turnoPersonagem(personagensOrdenados.get(j));
                 }
             }
-            if (inimigosBatalha.isEmpty() || personagensBatalha.isEmpty()) {
+            if (inimigos.isEmpty() || personagensBatalha.isEmpty()) {
                 break;
             }
             i++;
             System.out.println("\n-----------------------------------");
         }
 
-        if (inimigosBatalha.isEmpty()) {
+        if (inimigos.isEmpty()) {
             System.out.println("Os heróis venceram! :D\n");
         } else {
             System.out.println("Os inimigos venceram :(\n");
@@ -98,10 +83,20 @@ public class Batalha {
         if (p.isEnvenenado()) {
             System.out.println("-2 veneno");
             p.tomarDano(2);
+            if (p.getPontosVida() <= 0) {
+                this.personagensOrdenados.remove(p);
+                this.personagens.remove(p);
+                this.personagensBatalha.remove(p);
+            }
         }
         if (p.isQueimado()) {
             System.out.println("-1 queimadura");
             p.tomarDano(1);
+            if (p.getPontosVida() <= 0) {
+                this.personagensOrdenados.remove(p);
+                this.personagens.remove(p);
+                this.personagensBatalha.remove(p);
+            }
         }
 
         p.imprimirPersonagem();
@@ -120,13 +115,13 @@ public class Batalha {
             switch (r) {
                 case "1" -> {
                     int ri = 1;
-                    if (this.inimigosBatalha.size() > 1) {
+                    if (this.inimigos.size() > 1) {
                         System.out.println("Qual inimigo " + p.getNome() + " vai atacar?");
-                        for (int i = 0; i < inimigosBatalha.size(); i++) {
-                            System.out.println((i + 1) + " - " + inimigosBatalha.get(i).getNome());
+                        for (int i = 0; i < inimigos.size(); i++) {
+                            System.out.println((i + 1) + " - " + inimigos.get(i).getNome());
                         }
                         ri = sc.nextInt();
-                        if (ri < 1 || ri > inimigosBatalha.size()) {
+                        if (ri < 1 || ri > inimigos.size()) {
                             System.out.println("Opção inválida");
                             System.out.println("Perdeu a vez!");
                             return;
@@ -135,9 +130,10 @@ public class Batalha {
                     p.atacar(inimigos.get(ri - 1));
                     if (inimigos.get(ri - 1).getPontosVida() <= 0) {
                         System.out.println(inimigos.get(ri - 1).getNome() + " morreu");
+                        p.setXp(p.getXp()+inimigos.get(ri-1).getRecompensaXP());
+                        System.out.println(p.getNome() +" ganhou "+inimigos.get(ri-1).getRecompensaXP()+" de xp");
                         personagensOrdenados.remove(inimigos.get(ri - 1));
-                        inimigosBatalha.remove(ri-1);
-                        inimigos.remove(ri - 1);
+                        inimigos.remove(ri-1);
                     }
                 }
                 case "2" -> p.defender();
@@ -154,7 +150,7 @@ public class Batalha {
                     if (p.getHabilidades().size() > 1) {
                         System.out.println("Qual habilidade " + p.getNome() + " vai usar?");
                         for (int i = 0; i < p.getHabilidades().size(); i++) {
-                            System.out.println((i + 1) + " - " + p.getHabilidades().get(i).getNome());
+                            System.out.println((i + 1) + " - " + p.getHabilidades().get(i).getNome() + "("+p.getHabilidades().get(i).getValor()+")");
                         }
                         ri = sc.nextInt();
                         if (ri < 0 || ri > p.getHabilidades().size()) {
@@ -170,7 +166,7 @@ public class Batalha {
                             System.out.println((j + 1) + " - " + personagensOrdenados.get(j).getNome());
                         }
                         i = sc.nextInt();
-                        if (i < 0 || i >= personagensOrdenados.size()) {
+                        if (i < 0 || i > personagensOrdenados.size()) {
                             System.out.println("Opção inválida");
                             System.out.println("Perdeu a vez!");
                         }
@@ -178,8 +174,9 @@ public class Batalha {
                     p.usarHabilidade(personagensOrdenados.get(i - 1), ri - 1);
                     if (personagensOrdenados.get(i - 1).getPontosVida() <= 0) {
                         System.out.println(personagensOrdenados.get(i - 1).getNome() + " morreu");
+                        p.setXp(p.getXp()+inimigos.get(ri-1).getRecompensaXP());
+                        System.out.println(p.getNome() +" ganhou "+inimigos.get(ri-1).getRecompensaXP()+" de xp");
                         inimigos.remove(personagensOrdenados.get(i - 1));
-                        inimigosBatalha.remove(personagensOrdenados.get(i-1));
                         personagensOrdenados.remove(i - 1);
                     }
                 }
@@ -198,6 +195,31 @@ public class Batalha {
         System.out.println("\n--------------------");
         System.out.println("turno de "+i.getNome());
         i.imprimirPersonagem();
+        if (i.isAtordoado()) {
+            System.out.println("atordoado");
+            i.setAtordoado(false);
+            return;
+        }
+        if (i.isAdormecido()) {
+            System.out.println("adormecido");
+            return;
+        }
+        if (i.isEnvenenado()) {
+            System.out.println("-2 veneno");
+            i.tomarDano(2);
+            if (i.getPontosVida() <= 0) {
+                this.personagensOrdenados.remove(i);
+                this.inimigos.remove(i);
+            }
+        }
+        if (i.isQueimado()) {
+            System.out.println("-1 queimadura");
+            i.tomarDano(1);
+            if (i.getPontosVida() <= 0) {
+                this.personagensOrdenados.remove(i);
+                this.inimigos.remove(i);
+            }
+        }
         int indexPersonagem = 0;
         if (personagensBatalha.size() != 1) {
             indexPersonagem = random.nextInt(personagensBatalha.size());
@@ -251,5 +273,21 @@ public class Batalha {
 
     public void setPersonagensBatalha(ArrayList<Personagem> personagensBatalha) {
         this.personagensBatalha = personagensBatalha;
+    }
+
+    public ArrayList<Personagem> getPersonagens() {
+        return personagens;
+    }
+
+    public void setPersonagens(ArrayList<Personagem> personagens) {
+        this.personagens = personagens;
+    }
+
+    public ArrayList<Inimigo> getInimigos() {
+        return inimigos;
+    }
+
+    public void setInimigos(ArrayList<Inimigo> inimigos) {
+        this.inimigos = inimigos;
     }
 }

@@ -18,6 +18,7 @@ public class Mago extends Personagem {
     public void carregarMago() {
         int n = random.nextInt(5);
         if (n == 1) {
+            System.out.println(this.getNome()+" ganhou 5 pontos de Habilidade");
             this.carregar();
         }
     }

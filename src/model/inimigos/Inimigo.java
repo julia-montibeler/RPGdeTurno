@@ -11,4 +11,8 @@ public abstract class Inimigo extends Personagem {
         this.recompensaXP = recompensaXP;
         this.tipo = tipo;
     }
+
+    public int getRecompensaXP() {
+        return recompensaXP;
+    }
 }

@@ -2,6 +2,7 @@ package model;
 
 import app.Batalha;
 import model.habilidades.Habilidade;
+import model.inimigos.Inimigo;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -10,23 +11,20 @@ public abstract class Personagem implements Comparable<Personagem> {
     protected Random random = new Random();
     private String nome;
 
+    private int xp = 0;
+    private int nivel = 1;
+
+    private int[] niveis = {50,100,200,400};
     private int chanceCritico = 2;
     private int pontosVida;
-
     private int pontosHabilidade = 5;
-    private int maxPontosHabilidade = 10;
-
     private int destreza;
-
     private ArrayList<String> vantagens = new ArrayList<>();
     private ArrayList<String> desvantagens = new ArrayList<>();
-
     private int vidaMax;
     private int forca;
     private int defesa;
-
     private ArrayList<Habilidade> habilidades = new ArrayList<>();
-
     private boolean isEnvenenado;
     private boolean isAdormecido;
     private boolean isAtordoado;
@@ -72,7 +70,7 @@ public abstract class Personagem implements Comparable<Personagem> {
     // Auxiliares
 
     public void carregar() {
-        this.setPontosHabilidade(Math.max(this.getPontosHabilidade()+5, this.maxPontosHabilidade));
+        this.setPontosHabilidade(this.getPontosHabilidade()+5);
     }
 
     public int calcularDano(Personagem p1) {
@@ -107,7 +105,11 @@ public abstract class Personagem implements Comparable<Personagem> {
         System.out.println("- - - - - - - - - -");
         System.out.println(this.getNome());
         System.out.println(this);
+        System.out.println("Nível "+this.nivel);
         System.out.println("Vida: "+this.getPontosVida());
+        if (! (this instanceof Inimigo)) {
+            System.out.println("Pontos de habilidade: "+this.getPontosHabilidade());
+        }
         System.out.println("------------");
         System.out.println("Força: "+this.getForca());
         System.out.println("Defesa: "+this.getDefesa());
@@ -125,6 +127,13 @@ public abstract class Personagem implements Comparable<Personagem> {
             System.out.println("Queimado");
         }
         System.out.println("- - - - - - - - - -");
+    }
+
+    public void subirNivel() {
+        this.nivel++;
+        this.forca += 5;
+        this.vidaMax += 5;
+        this.destreza++;
     }
 
     @Override
@@ -239,5 +248,24 @@ public abstract class Personagem implements Comparable<Personagem> {
 
     public void setChanceCritico(int chanceCritico) {
         this.chanceCritico = chanceCritico;
+    }
+
+    public int getXp() {
+        return xp;
+    }
+
+    public void setXp(int xp) {
+        this.xp = xp;
+        if ((this.niveis[nivel-1] >= this.xp) && nivel-1 < niveis.length) {
+            this.subirNivel();
+        }
+    }
+
+    public int getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(int nivel) {
+        this.nivel = nivel;
     }
 }
